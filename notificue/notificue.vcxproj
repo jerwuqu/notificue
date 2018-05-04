@@ -74,6 +74,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="log.c" />
+    <ClCompile Include="notificationlist.c" />
     <ClCompile Include="notificue.c" />
   </ItemGroup>
   <ItemGroup>
@@ -83,6 +85,11 @@
       <Private>false</Private>
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="log.h" />
+    <ClInclude Include="notificationlist.h" />
+    <ClInclude Include="notificue.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
