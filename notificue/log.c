@@ -1,6 +1,8 @@
+// Notificue Logging
+
 #include "log.h"
 
-void ntfu_log(const char* format, ...)
+void log_text(const char* format, ...)
 {
 	va_list vargs;
 	va_start(vargs, format);
@@ -15,15 +17,15 @@ void ntfu_log(const char* format, ...)
 	va_end(vargs);
 }
 
-void ntfu_log_win32_error()
+void log_win32_error()
 {
 	wchar_t buf[256];
 	FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM, NULL, GetLastError(),
 		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), buf, 256, NULL);
-	ntfu_log("%ls\n", buf);
+	log_text("%ls\n", buf);
 }
 
-void ntfu_log_shell32_version()
+void log_shell32_version()
 {
 	// todo: this
 }

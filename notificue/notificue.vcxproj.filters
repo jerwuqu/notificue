@@ -21,18 +21,36 @@
     <ClCompile Include="log.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="notificationlist.c">
+    <ClCompile Include="mainwnd.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="shellhook.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ntfls.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ntfshow.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="notificue.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="log.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="notificationlist.h">
+    <ClInclude Include="mainwnd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="shellhook.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ntfls.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="shared.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ntfshow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,4 +1,6 @@
-#include "notificationlist.h"
+// Notification List
+
+#include "ntfls.h"
 
 static Notification list[NOTIFICATION_LIMIT] = { 0 };
 
@@ -13,12 +15,12 @@ static int firstEmptySlot()
 	return -1;
 }
 
-Notification* ntls_create(const time_t created, const wchar_t* title, const wchar_t* body)
+Notification* ntfls_create(const time_t created, const wchar_t* title, const wchar_t* body)
 {
 	// Find first empty slot
 	int emptySlot = firstEmptySlot();
 	if (emptySlot < 0) {
-		ntfu_log("Out of usable notification slots!\n");
+		log_text("Out of usable notification slots!\n");
 		return 0;
 	}
 
@@ -32,7 +34,7 @@ Notification* ntls_create(const time_t created, const wchar_t* title, const wcha
 	return ntf;
 }
 
-void ntls_remove(Notification* notification)
+void ntfls_remove(Notification* notification)
 {
 	// Free members
 	free(notification->title);

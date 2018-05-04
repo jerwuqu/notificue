@@ -75,8 +75,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="log.c" />
-    <ClCompile Include="notificationlist.c" />
+    <ClCompile Include="mainwnd.c" />
+    <ClCompile Include="ntfls.c" />
     <ClCompile Include="notificue.c" />
+    <ClCompile Include="ntfshow.c" />
+    <ClCompile Include="shellhook.c" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\notificue-dll\notificue-dll.vcxproj">
@@ -88,8 +91,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="log.h" />
-    <ClInclude Include="notificationlist.h" />
-    <ClInclude Include="notificue.h" />
+    <ClInclude Include="mainwnd.h" />
+    <ClInclude Include="ntfls.h" />
+    <ClInclude Include="ntfshow.h" />
+    <ClInclude Include="shared.h" />
+    <ClInclude Include="shellhook.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

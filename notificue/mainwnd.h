@@ -1,9 +1,7 @@
 #pragma once
 
 #include <Windows.h>
-#include <stdio.h>
-
-#include "notificationlist.h"
+#include "shared.h"
 
 struct SNIDATA
 {
@@ -16,3 +14,6 @@ struct SNIDATA
 	WCHAR* nid_szInfo;
 	WCHAR* nid_szInfoTitle;
 };
+
+int mainwnd_create();
+void mainwnd_destroy();

@@ -45,8 +45,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='notificue-dll|x64'">
-    <OutDir>$(SolutionDir)$(Platform)</OutDir>
-    <IntDir>$(Platform)</IntDir>
+    <OutDir>$(SolutionDir)$(Platform)/</OutDir>
+    <IntDir>$(Platform)/</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='notificue-dll|Win32'">
     <ClCompile>
@@ -76,6 +76,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="notificue-dll.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\notificue\shared.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,5 +1,6 @@
 #include <windows.h>
 #include <stdio.h>
+#include "../notificue/shared.h"
 
 HWND notificueWnd;
 
@@ -12,8 +13,8 @@ extern __declspec(dllexport) LRESULT WINAPI wndProcHook(int nCode, WPARAM wParam
 			char* buff = (char*)cds->lpData;
 			DWORD bufflen = cds->cbData;
 
-			// Verify length and magic [from Shell_NotifyIconW in Shell32.dll]
-			if (bufflen == 0x5CC && buff[0] == 0x23 && buff[1] == 0x34 && buff[2] == 0x75 && buff[3] == 0x34) {
+			// Verify length and magic
+			if (CDS_NID_CHECK(buff, bufflen)) {
 				// Forward to notificue
 				SendMessage(notificueWnd, data->message, data->wParam, data->lParam);
 			}
@@ -26,7 +27,7 @@ extern __declspec(dllexport) LRESULT WINAPI wndProcHook(int nCode, WPARAM wParam
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
 	if (fdwReason == DLL_PROCESS_ATTACH) {
-		notificueWnd = FindWindowA("notificue_main", "");
+		notificueWnd = FindWindowA(NOTIFICUE_HOOK_WND_CLASSNAME, "");
 		if (!notificueWnd) return FALSE;
 	}
 

@@ -1,3 +1,5 @@
+// Notification List
+
 #pragma once
 
 #include <Windows.h>
@@ -6,7 +8,7 @@
 
 #include "log.h"
 
-#define NOTIFICATION_LIMIT 3
+#define NOTIFICATION_LIMIT 16
 
 typedef struct _Notification
 {
@@ -16,5 +18,5 @@ typedef struct _Notification
 	wchar_t* body;
 } Notification;
 
-Notification* ntls_create(const time_t created, const wchar_t* title, const wchar_t* body);
-void ntls_remove(Notification* notification);
+Notification* ntfls_create(const time_t created, const wchar_t* title, const wchar_t* body);
+void ntfls_remove(Notification* notification);
