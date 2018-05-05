@@ -45,8 +45,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='notificue-dll|x64'">
-    <OutDir>$(SolutionDir)$(Platform)/</OutDir>
-    <IntDir>$(Platform)/</IntDir>
+    <OutDir>$(SolutionDir)/bin/$(Platform)/</OutDir>
+    <IntDir>obj/$(Platform)/</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='notificue-dll|Win32'">
     <ClCompile>

@@ -16,7 +16,7 @@ static void setDefaults()
 	config.maxWidth = 400;
 
 	// Font
-	sprintf_s(config.fontName, 256, "Arial");
+	sprintf_s(config.fontName, CONFIG_FONT_NAME_LENGTH, "Arial");
 	config.fontSize = -14;
 
 	// Margin
@@ -46,8 +46,9 @@ NotificueConfig* config_get()
 	return &config;
 }
 
-void config_save()
+int config_save()
 {
 	if (!inited) setDefaults();
 	// todo
+	return 0;
 }

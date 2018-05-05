@@ -3,6 +3,7 @@
 #include <stdint.h>
 
 #define CONFIG_PATH "notificue.cfg"
+#define CONFIG_FONT_NAME_LENGTH 256
 
 typedef struct _NotificueConfig
 {
@@ -13,7 +14,7 @@ typedef struct _NotificueConfig
 	int32_t minWidth, maxWidth;
 
 	// Font
-	char fontName[256];
+	char fontName[CONFIG_FONT_NAME_LENGTH];
 	uint8_t fontSize;
 
 	// Margin
@@ -28,4 +29,4 @@ typedef struct _NotificueConfig
 
 NotificueConfig* config_load();
 NotificueConfig* config_get();
-void config_save();
+int config_save();

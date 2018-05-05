@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27004.2006
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "notificue", "notificue.vcxproj", "{8E3A1450-391D-4B46-9588-78D10E1B98A6}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "notificue", "notificue\notificue.vcxproj", "{8E3A1450-391D-4B46-9588-78D10E1B98A6}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "notificue-dll", "..\notificue-dll\notificue-dll.vcxproj", "{85AD7722-C64C-4D2A-B810-50F751FAB8A8}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "notificue-dll", "notificue-dll\notificue-dll.vcxproj", "{85AD7722-C64C-4D2A-B810-50F751FAB8A8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
