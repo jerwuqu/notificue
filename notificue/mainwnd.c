@@ -35,7 +35,7 @@ static LRESULT CALLBACK wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
 			// Check if this is a notification
 			if (sni.nid_uFlags & NIF_INFO) {
 				log_text("Notification! Title: %ls, Body: %ls\n", sni.nid_szInfoTitle, sni.nid_szInfo);
-				ntfshow_display(sni.nid_szInfoTitle, sni.nid_szInfo);
+				ntfshow_create(sni.nid_szInfoTitle, sni.nid_szInfo);
 			}
 		}
 	}

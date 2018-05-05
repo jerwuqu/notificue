@@ -1,49 +1,55 @@
 // Notification List
 
 #include "ntfls.h"
+#include "ntfshow.h"
 
-static Notification list[NOTIFICATION_LIMIT] = { 0 };
-
-static int firstEmptySlot()
-{
-	for (int i = 0; i < NOTIFICATION_LIMIT; i++) {
-		if (list[i].created == 0) {
-			return i;
-		}
-	}
-
-	return -1;
-}
+static Notification root = { 0 };
+static Notification* tail = &root;
+static int notificationCount;
 
 Notification* ntfls_create(const time_t created, const wchar_t* title, const wchar_t* body, SIZE boxSize)
 {
-	// Find first empty slot
-	int emptySlot = firstEmptySlot();
-	if (emptySlot < 0) {
-		log_text("Out of usable notification slots!\n");
-		return 0;
-	}
-
-	// Fill
-	Notification* ntf = &list[emptySlot];
-	ntf->index = emptySlot;
+	// Create
+	Notification* ntf = (Notification*)malloc(sizeof(Notification));
+	tail->_next = ntf;
+	ntf->_prev = tail;
+	tail = ntf;
+	ntf->_next = NULL;
+	ntf->index = notificationCount++;;
 	ntf->created = created;
 	ntf->title = _wcsdup(title);
 	ntf->body = _wcsdup(body);
 	ntf->boxSize = boxSize;
-	if (emptySlot > 0) {
-		ntf->boxYOffset = list[emptySlot - 1].boxYOffset + list[emptySlot - 1].boxSize.cy;
-	}
+	ntf->boxYOffset = ntf->_prev->boxYOffset + ntf->_prev->boxSize.cy;
 
 	return ntf;
 }
 
-void ntfls_remove(Notification* notification)
+void ntfls_remove(Notification* ntf)
 {
-	// Free members
-	free(notification->title);
-	free(notification->body);
+	if (ntf == &root) return;
 
-	// Clear created
-	notification->created = 0;
+	// Remove from list
+	notificationCount--;
+	if (ntf == tail) {
+		tail = ntf->_prev;
+		tail->_next = NULL;
+	} else {
+		ntf->_prev->_next = ntf->_next;
+		ntf->_next->_prev = ntf->_prev;
+
+		// Move followers
+		Notification* current = ntf;
+		while (current != tail) {
+			current = current->_next;
+			current->index--;
+			current->boxYOffset = current->_prev->boxYOffset + current->_prev->boxSize.cy;
+			ntfshow_reposition(current);
+		}
+	}
+
+	// Free
+	free(ntf->title);
+	free(ntf->body);
+	free(ntf);
 }

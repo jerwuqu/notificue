@@ -9,10 +9,12 @@ void log_text(const char* format, ...)
 
 	vprintf(format, vargs);
 
+#ifdef LOG_TO_FILE
 	FILE* file;
 	fopen_s(&file, LOG_PATH, "a+");
 	vfprintf(file, format, vargs);
 	fclose(file);
+#endif
 
 	va_end(vargs);
 }

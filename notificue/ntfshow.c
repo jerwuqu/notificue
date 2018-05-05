@@ -46,17 +46,6 @@ static SIZE calculateBoxSize(const wchar_t* title, const wchar_t* body)
 	return boxSize;
 }
 
-static void removeNotification(HWND hwnd)
-{
-	Notification* ntf = (Notification*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
-	if (!ntf) return;
-
-	// todo: move other notifications on close
-	ntfls_remove(ntf);
-	SetWindowLongPtr(hwnd, GWLP_USERDATA, 0);
-	DestroyWindow(hwnd);
-}
-
 static LRESULT CALLBACK wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	Notification* ntf = (Notification*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
@@ -93,7 +82,7 @@ static LRESULT CALLBACK wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
 			EndPaint(hwnd, &ps);
 			return FALSE;
 		} else if (msg == WM_LBUTTONDOWN) {
-			removeNotification(hwnd);
+			ntfshow_remove(ntf);
 		}
 	}
 
@@ -102,7 +91,8 @@ static LRESULT CALLBACK wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
 
 static VOID CALLBACK dismissTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 {
-	removeNotification(hwnd);
+	Notification* ntf = (Notification*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+	if (ntf) ntfshow_remove(ntf);
 }
 
 int ntfshow_init()
@@ -169,7 +159,7 @@ void ntfshow_quit()
 	dummyDC = NULL;
 }
 
-void ntfshow_display(wchar_t* title, wchar_t* body)
+Notification* ntfshow_create(wchar_t* title, wchar_t* body)
 {
 	// Calculate size
 	SIZE boxSize = calculateBoxSize(title, body);
@@ -179,7 +169,7 @@ void ntfshow_display(wchar_t* title, wchar_t* body)
 	Notification* ntf = ntfls_create(created, title, body, boxSize);
 	if (ntf == NULL) {
 		log_text("Failed to create notification!\n");
-		return;
+		return 0;
 	}
 
 	// Create notification window
@@ -187,10 +177,11 @@ void ntfshow_display(wchar_t* title, wchar_t* body)
 	if (!hwnd) {
 		log_text("Failed to create window!\n");
 		log_win32_error();
-		return;
+		return 0;
 	}
 
-	// Assign notification
+	// Link notification and window
+	ntf->hwnd = hwnd;
 	SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)ntf);
 
 	// Remove styling (https://stackoverflow.com/questions/2398746/removing-window-border)
@@ -206,23 +197,40 @@ void ntfshow_display(wchar_t* title, wchar_t* body)
 	if (!UpdateWindow(hwnd)) {
 		log_text("Failed to update window!\n");
 		log_win32_error();
-		return;
+		return 0;
 	}
 
 	// Set position
+	ntfshow_reposition(ntf);
+
+	// Set auto-dismiss timer
+	if (config->displayTime > 0) SetTimer(hwnd, 0, config->displayTime, dismissTimerProc);
+
+	return ntf;
+}
+
+void ntfshow_reposition(Notification* ntf)
+{
+	if (!ntf->hwnd) return;
 	int boxX, boxY;
 	if (config->screenX >= 0) {
 		boxX = config->screenX;
 	} else {
-		boxX = screenWidth + config->screenX - boxSize.cx;
+		boxX = screenWidth + config->screenX - ntf->boxSize.cx;
 	}
 	if (config->screenY >= 0) {
 		boxY = config->screenY + ntf->boxYOffset + ntf->index * config->notificationMargin;
 	} else {
-		boxY = screenHeight + config->screenY - ntf->boxYOffset - ntf->index * config->notificationMargin - boxSize.cy;
+		boxY = screenHeight + config->screenY - ntf->boxYOffset - ntf->index * config->notificationMargin - ntf->boxSize.cy;
 	}
-	SetWindowPos(hwnd, NULL, boxX, boxY, 0, 0, SWP_FRAMECHANGED | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER);
+	SetWindowPos(ntf->hwnd, NULL, boxX, boxY, 0, 0, SWP_FRAMECHANGED | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER);
+}
 
-	// Set auto-dismiss timer
-	if (config->displayTime > 0) SetTimer(hwnd, 0, config->displayTime, dismissTimerProc);
+void ntfshow_remove(Notification* ntf)
+{
+	// todo: move other notifications on close
+	ntfls_remove(ntf);
+	if (!ntf->hwnd) return;
+	SetWindowLongPtr(ntf->hwnd, GWLP_USERDATA, 0);
+	DestroyWindow(ntf->hwnd);
 }
