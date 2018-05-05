@@ -1,15 +1,13 @@
 *.suo
 *.user
+*.ini
+*.ini.bak.*
 *.userosscache
 *.sln.docstates
-
 *.userprefs
-
 x64/
 x86/
-
 .vs/
-
 *_i.c
 *_p.c
 *_i.h
@@ -34,8 +32,6 @@ x86/
 *.pidb
 *.svclog
 *.scc
-
-# Visual C++ cache files
 ipch/
 *.aps
 *.ncb
@@ -45,8 +41,6 @@ ipch/
 *.cachefile
 *.VC.db
 *.VC.VC.opendb
-
-# SQL Server files
 *.mdf
 *.ldf
 *.ndf

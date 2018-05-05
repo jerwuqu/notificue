@@ -36,6 +36,9 @@
     <ClCompile Include="config.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\inih\ini.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="log.h">
@@ -57,6 +60,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\inih\ini.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

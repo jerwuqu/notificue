@@ -19,7 +19,7 @@ static SIZE calculateBoxSize(const wchar_t* title, const wchar_t* body)
 	int textWidth = titleWidth > textSize.cx ? titleWidth : textSize.cx;
 
 	if (textWidth < config->minWidth) textWidth = config->minWidth;
-	if (textWidth > config->maxWidth - config->textMargin * 2) textWidth = config->maxWidth - config->textMargin * 2;
+	if (textWidth > config->maxWidth - config->textBoxMargin * 2) textWidth = config->maxWidth - config->textBoxMargin * 2;
 
 	// Get title height
 	RECT rect;
@@ -27,7 +27,7 @@ static SIZE calculateBoxSize(const wchar_t* title, const wchar_t* body)
 	rect.right = textWidth;
 	rect.bottom = 1000;
 	SelectObject(dummyDC, titleFont);
-	int boxHeight = config->textMargin * 2 + config->titleBodyMargin;
+	int boxHeight = config->textBoxMargin * 2 + config->titleBodyMargin;
 	boxHeight += DrawTextW(dummyDC, title, -1, &rect, NTF_DRAW_TEXT_FLAGS);
 
 	// Get body height
@@ -39,7 +39,7 @@ static SIZE calculateBoxSize(const wchar_t* title, const wchar_t* body)
 	
 	// Set properties
 	SIZE boxSize;
-	boxSize.cx = textWidth + config->textMargin * 2;
+	boxSize.cx = textWidth + config->textBoxMargin * 2;
 	boxSize.cy = boxHeight;
 
 	return boxSize;
@@ -56,21 +56,21 @@ static LRESULT CALLBACK wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
 
 			// Rect
 			RECT textRect;
-			textRect.left = textRect.top = config->textMargin;
-			textRect.right = ntf->boxSize.cx - config->textMargin;
-			textRect.bottom = ntf->boxSize.cy - config->textMargin;
+			textRect.left = textRect.top = config->textBoxMargin;
+			textRect.right = ntf->boxSize.cx - config->textBoxMargin;
+			textRect.bottom = ntf->boxSize.cy - config->textBoxMargin;
 
 			// Clear
 			SelectObject(hdc, GetStockObject(DC_PEN));
 			SelectObject(hdc, GetStockObject(DC_BRUSH));
-			SetDCPenColor(hdc, 0x000000);
-			SetDCBrushColor(hdc, 0xffcc00);
+			SetDCPenColor(hdc, config->borderColor);
+			SetDCBrushColor(hdc, config->backgroundColor);
 			Rectangle(hdc, 0, 0, ntf->boxSize.cx, ntf->boxSize.cy);
 
 			// Draw text
 			SetBkMode(hdc, TRANSPARENT);
 			SelectObject(hdc, titleFont);
-			SetTextColor(hdc, 0xffffff);
+			SetTextColor(hdc, config->textColor);
 			int titleHeight = DrawTextW(hdc, ntf->title, -1, &textRect, NTF_DRAW_TEXT_FLAGS);
 
 			textRect.top += titleHeight + config->titleBodyMargin;
@@ -108,14 +108,14 @@ int ntfshow_init()
 		return 1;
 	}
 
-	titleFont = CreateFont(-14, 0, 0, 0, FW_BOLD, 0, 0, 0, 0, 0, 0, 0, 0, "Arial");
+	titleFont = CreateFont(config->fontSize, 0, 0, 0, FW_BOLD, 0, 0, 0, 0, 0, 0, 0, 0, config->fontName);
 	if (!titleFont) {
 		log_text("Failed to load title font!\n");
 		log_win32_error();
 		return 1;
 	}
 
-	bodyFont = CreateFont(-14, 0, 0, 0, FW_NORMAL, 0, 0, 0, 0, 0, 0, 0, 0, "Arial");
+	bodyFont = CreateFont(config->fontSize, 0, 0, 0, FW_NORMAL, 0, 0, 0, 0, 0, 0, 0, 0, config->fontName);
 	if (!bodyFont) {
 		log_text("Failed to load body font!\n");
 		log_win32_error();

@@ -74,6 +74,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\inih\ini.c" />
     <ClCompile Include="config.c" />
     <ClCompile Include="log.c" />
     <ClCompile Include="mainwnd.c" />
@@ -91,6 +92,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\inih\ini.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="log.h" />
     <ClInclude Include="mainwnd.h" />
