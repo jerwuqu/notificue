@@ -1,47 +1,81 @@
 #include "ntfshow.h"
+#include "config.h"
 
-#define NOTIFICATION_X 25
-#define NOTIFICATION_Y 25
-#define NOTIFICATION_WIDTH 200
-#define NOTIFICATION_HEIGHT 60
-#define NOTIFICATION_MARGIN 5
+#define NTF_DRAW_TEXT_FLAGS (DT_NOCLIP | DT_NOPREFIX | DT_WORDBREAK | DT_EDITCONTROL)
 
 static HCURSOR cursor = NULL;
 static HFONT titleFont = NULL;
 static HFONT bodyFont = NULL;
+static NotificueConfig* config = NULL;
+static HDC dummyDC = NULL;
+
+static SIZE calculateBoxSize(const wchar_t* title, const wchar_t* body)
+{
+	// Calculate textbox width
+	SIZE textSize;
+	GetTextExtentPoint32W(dummyDC, title, lstrlenW(title), &textSize);
+	int titleWidth = textSize.cx;
+	GetTextExtentPoint32W(dummyDC, body, lstrlenW(body), &textSize);
+	int textWidth = titleWidth > textSize.cx ? titleWidth : textSize.cx;
+
+	if (textWidth < config->minWidth) textWidth = config->minWidth;
+	if (textWidth > config->maxWidth - config->textMargin * 2) textWidth = config->maxWidth - config->textMargin * 2;
+
+	// Get title height
+	RECT rect;
+	rect.left = rect.top = 0;
+	rect.right = textWidth;
+	rect.bottom = 1000;
+	SelectObject(dummyDC, titleFont);
+	int boxHeight = config->textMargin * 2 + config->titleBodyMargin;
+	boxHeight += DrawTextW(dummyDC, title, -1, &rect, NTF_DRAW_TEXT_FLAGS);
+
+	// Get body height
+	rect.left = rect.top = 0;
+	rect.right = textWidth;
+	rect.bottom = 1000;
+	SelectObject(dummyDC, bodyFont);
+	boxHeight += DrawTextW(dummyDC, body, -1, &rect, NTF_DRAW_TEXT_FLAGS);
+	
+	// Set properties
+	SIZE boxSize;
+	boxSize.cx = textWidth + config->textMargin * 2;
+	boxSize.cy = boxHeight;
+
+	return boxSize;
+}
 
 static LRESULT CALLBACK wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	Notification* ntf = (Notification*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 	if (ntf) {
 		if (msg == WM_PAINT) {
-			// Rect
-			RECT rect;
-			rect.left = 15;
-			rect.top = 15;
-			rect.right = NOTIFICATION_WIDTH - rect.left;
-			rect.bottom = NOTIFICATION_HEIGHT - rect.top;
-
 			// Begin
 			PAINTSTRUCT ps;
 			HDC hdc = BeginPaint(hwnd, &ps);
+
+			// Rect
+			RECT textRect;
+			textRect.left = textRect.top = config->textMargin;
+			textRect.right = ntf->boxSize.cx - config->textMargin;
+			textRect.bottom = ntf->boxSize.cy - config->textMargin;
 
 			// Clear
 			SelectObject(hdc, GetStockObject(DC_PEN));
 			SelectObject(hdc, GetStockObject(DC_BRUSH));
 			SetDCPenColor(hdc, 0x000000);
 			SetDCBrushColor(hdc, 0xffcc00);
-			Rectangle(hdc, 0, 0, NOTIFICATION_WIDTH, NOTIFICATION_HEIGHT);
+			Rectangle(hdc, 0, 0, ntf->boxSize.cx, ntf->boxSize.cy);
 
 			// Draw text
 			SetBkMode(hdc, TRANSPARENT);
 			SelectObject(hdc, titleFont);
 			SetTextColor(hdc, 0xffffff);
-			DrawTextW(hdc, ntf->title, -1, &rect, DT_SINGLELINE | DT_NOCLIP | DT_NOPREFIX);
+			int titleHeight = DrawTextW(hdc, ntf->title, -1, &textRect, NTF_DRAW_TEXT_FLAGS);
 
-			rect.top = 30;
+			textRect.top += titleHeight + config->titleBodyMargin;
 			SelectObject(hdc, bodyFont);
-			DrawTextW(hdc, ntf->body, -1, &rect, DT_NOCLIP | DT_NOPREFIX);
+			DrawTextW(hdc, ntf->body, -1, &textRect, NTF_DRAW_TEXT_FLAGS);
 
 			// End
 			EndPaint(hwnd, &ps);
@@ -58,6 +92,14 @@ static LRESULT CALLBACK wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
 
 int ntfshow_init()
 {
+	// Get config
+	config = config_get();
+
+	// Create dummy DC
+	HDC displayDC = CreateDC("DISPLAY", NULL, NULL, NULL);
+	dummyDC = CreateCompatibleDC(displayDC);
+	DeleteDC(displayDC);
+
 	// Load resources
 	cursor = LoadCursor(NULL, IDC_HAND);
 	if (!cursor) {
@@ -99,23 +141,30 @@ int ntfshow_init()
 void ntfshow_quit()
 {
 	DeleteObject(cursor);
+	cursor = NULL;
 	DeleteObject(titleFont);
 	DeleteObject(bodyFont);
-	cursor = titleFont = bodyFont = NULL;
+	titleFont = bodyFont = NULL;
+
+	DeleteDC(dummyDC);
+	dummyDC = NULL;
 }
 
 void ntfshow_display(wchar_t* title, wchar_t* body)
 {
+	// Calculate size
+	SIZE boxSize = calculateBoxSize(title, body);
+
 	// Create notification in list
 	time_t created = time(0);
-	Notification* ntf = ntfls_create(created, title, body);
+	Notification* ntf = ntfls_create(created, title, body, boxSize);
 	if (ntf == NULL) {
 		log_text("Failed to create notification!\n");
 		return;
 	}
 
 	// Create notification window
-	HWND hwnd = CreateWindowEx(WS_EX_TOPMOST, "notificue_ntf", "", CS_VREDRAW | CS_HREDRAW, 0, 0, NOTIFICATION_WIDTH, NOTIFICATION_HEIGHT, 0, 0, 0, 0);
+	HWND hwnd = CreateWindowEx(WS_EX_TOPMOST, "notificue_ntf", "", CS_VREDRAW | CS_HREDRAW, 0, 0, ntf->boxSize.cx, ntf->boxSize.cy, 0, 0, 0, 0);
 	if (!hwnd) {
 		log_text("Failed to create window!\n");
 		log_win32_error();
@@ -142,6 +191,6 @@ void ntfshow_display(wchar_t* title, wchar_t* body)
 	}
 
 	// Set position
-	int y = NOTIFICATION_Y + (ntf->index) * (NOTIFICATION_HEIGHT + NOTIFICATION_MARGIN);
-	SetWindowPos(hwnd, NULL, NOTIFICATION_X, y, 0, 0, SWP_FRAMECHANGED | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER);
+	int boxY = config->screenY + ntf->boxYOffset + ntf->index * config->notificationMargin;
+	SetWindowPos(hwnd, NULL, config->screenX, boxY, 0, 0, SWP_FRAMECHANGED | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER);
 }

@@ -15,7 +15,7 @@ static int firstEmptySlot()
 	return -1;
 }
 
-Notification* ntfls_create(const time_t created, const wchar_t* title, const wchar_t* body)
+Notification* ntfls_create(const time_t created, const wchar_t* title, const wchar_t* body, SIZE boxSize)
 {
 	// Find first empty slot
 	int emptySlot = firstEmptySlot();
@@ -30,6 +30,10 @@ Notification* ntfls_create(const time_t created, const wchar_t* title, const wch
 	ntf->created = created;
 	ntf->title = _wcsdup(title);
 	ntf->body = _wcsdup(body);
+	ntf->boxSize = boxSize;
+	if (emptySlot > 0) {
+		ntf->boxYOffset = list[emptySlot - 1].boxYOffset + list[emptySlot - 1].boxSize.cy;
+	}
 
 	return ntf;
 }
