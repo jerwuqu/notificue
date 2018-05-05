@@ -29,6 +29,8 @@ typedef struct _NotificueConfig
 
 	// Display
 	int32_t displayTime; // todo
+
+	// todo: sound
 } NotificueConfig;
 
 NotificueConfig* config_load();

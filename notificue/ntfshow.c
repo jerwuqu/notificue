@@ -8,6 +8,7 @@ static HFONT titleFont = NULL;
 static HFONT bodyFont = NULL;
 static NotificueConfig* config = NULL;
 static HDC dummyDC = NULL;
+static DWORD screenWidth, screenHeight;
 
 static SIZE calculateBoxSize(const wchar_t* title, const wchar_t* body)
 {
@@ -81,6 +82,7 @@ static LRESULT CALLBACK wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
 			EndPaint(hwnd, &ps);
 			return FALSE;
 		} else if (msg == WM_LBUTTONDOWN) {
+			// todo: move other notifications on close
 			ntfls_remove(ntf);
 			SetWindowLongPtr(hwnd, GWLP_USERDATA, 0);
 			DestroyWindow(hwnd);
@@ -99,6 +101,10 @@ int ntfshow_init()
 	HDC displayDC = CreateDC("DISPLAY", NULL, NULL, NULL);
 	dummyDC = CreateCompatibleDC(displayDC);
 	DeleteDC(displayDC);
+
+	// Get screen size
+	screenWidth = GetSystemMetrics(SM_CXSCREEN);
+	screenHeight = GetSystemMetrics(SM_CYSCREEN);
 
 	// Load resources
 	cursor = LoadCursor(NULL, IDC_HAND);
@@ -191,6 +197,16 @@ void ntfshow_display(wchar_t* title, wchar_t* body)
 	}
 
 	// Set position
-	int boxY = config->screenY + ntf->boxYOffset + ntf->index * config->notificationMargin;
-	SetWindowPos(hwnd, NULL, config->screenX, boxY, 0, 0, SWP_FRAMECHANGED | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER);
+	int boxX, boxY;
+	if (config->screenX >= 0) {
+		boxX = config->screenX;
+	} else {
+		boxX = screenWidth + config->screenX - boxSize.cx;
+	}
+	if (config->screenY >= 0) {
+		boxY = config->screenY + ntf->boxYOffset + ntf->index * config->notificationMargin;
+	} else {
+		boxY = screenHeight + config->screenY - ntf->boxYOffset - ntf->index * config->notificationMargin - boxSize.cy;
+	}
+	SetWindowPos(hwnd, NULL, boxX, boxY, 0, 0, SWP_FRAMECHANGED | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER);
 }
