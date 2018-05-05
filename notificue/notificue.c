@@ -10,6 +10,8 @@ int main(int argc, char** argv)
 	if (mainwnd_create()) return 1;
 	if (shellhook_inject()) return 1;
 
+	log_text("OK!\n");
+
 	// Message loop
 	MSG message;
 	while (GetMessage(&message, NULL, 0, 0)) {

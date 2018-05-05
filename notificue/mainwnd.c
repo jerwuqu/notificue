@@ -1,7 +1,9 @@
 #include "mainwnd.h"
 #include "ntfshow.h"
+#include "shellhook.h"
 
 static HWND mainWnd = NULL;
+static time_t lastPing;
 
 static LRESULT CALLBACK wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -38,10 +40,22 @@ static LRESULT CALLBACK wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
 				ntfshow_create(sni.nid_szInfoTitle, sni.nid_szInfo);
 			}
 		}
+	} else if (msg == NOTIFICUE_PING_MESSAGE) {
+		lastPing = time(0);
 	}
 
 defwndproc:
 	return DefWindowProc(hwnd, msg, wParam, lParam);
+}
+
+static VOID CALLBACK aliveTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
+{
+	if (time(0) - lastPing >= NOTIFICUE_HOOK_DEAD_TIMEOUT) {
+		log_text("Hook dead! Reinjecting...\n");
+		shellhook_remove();
+		if (shellhook_inject()) return;
+		log_text("OK!\n");
+	}
 }
 
 int mainwnd_create()
@@ -73,6 +87,10 @@ int mainwnd_create()
 		log_win32_error();
 		return 1;
 	}
+
+	// Create repeating timer
+	lastPing = time(0);
+	SetTimer(mainWnd, 0, NOTIFICUE_PING_INTERVAL * 1000, aliveTimerProc);
 
 	return 0;
 }

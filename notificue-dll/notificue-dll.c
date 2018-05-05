@@ -1,8 +1,10 @@
 #include <windows.h>
 #include <stdio.h>
+#include <time.h>
 #include "../notificue/shared.h"
 
-HWND notificueWnd;
+static HWND notificueWnd = 0;
+static time_t lastPing = 0;
 
 extern __declspec(dllexport) LRESULT WINAPI wndProcHook(int nCode, WPARAM wParam, LPARAM lParam)
 {
@@ -18,6 +20,13 @@ extern __declspec(dllexport) LRESULT WINAPI wndProcHook(int nCode, WPARAM wParam
 				// Forward to notificue
 				SendMessage(notificueWnd, data->message, data->wParam, data->lParam);
 			}
+		}
+
+		// Ping notificue to signal we're still alive
+		time_t currentTime = time(0);
+		if (currentTime - lastPing >= NOTIFICUE_PING_INTERVAL) {
+			PostMessage(notificueWnd, WM_USER, 0, 0);
+			lastPing = currentTime;
 		}
 	}
 

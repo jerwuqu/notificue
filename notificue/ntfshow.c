@@ -93,6 +93,7 @@ static LRESULT CALLBACK wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
 static VOID CALLBACK dismissTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 {
 	Notification* ntf = (Notification*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+	KillTimer(hwnd, idEvent);
 	if (ntf) ntfshow_remove(ntf);
 }
 

@@ -22,7 +22,6 @@ int shellhook_inject()
 	HWND wnd = FindWindowA("Shell_TrayWnd", "");
 	if (!wnd) {
 		log_text("Shell_TrayWnd window not found!\n");
-		log_win32_error();
 		return 1;
 	}
 
