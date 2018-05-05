@@ -1,5 +1,6 @@
 #include "ntfshow.h"
 #include "config.h"
+#pragma comment(lib, "Winmm.lib")
 
 #define NTF_DRAW_TEXT_FLAGS (DT_NOCLIP | DT_NOPREFIX | DT_WORDBREAK | DT_EDITCONTROL)
 
@@ -206,6 +207,9 @@ Notification* ntfshow_create(wchar_t* title, wchar_t* body)
 	// Set auto-dismiss timer
 	if (config->displayTime > 0) SetTimer(hwnd, 0, config->displayTime, dismissTimerProc);
 
+	// Play sound
+	if (config->soundFile[0]) PlaySound(config->soundFile, NULL, SND_FILENAME | SND_ASYNC);
+
 	return ntf;
 }
 
@@ -228,7 +232,6 @@ void ntfshow_reposition(Notification* ntf)
 
 void ntfshow_remove(Notification* ntf)
 {
-	// todo: move other notifications on close
 	ntfls_remove(ntf);
 	if (!ntf->hwnd) return;
 	SetWindowLongPtr(ntf->hwnd, GWLP_USERDATA, 0);

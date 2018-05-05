@@ -95,6 +95,12 @@ static int iniHandler(void* user, const char* section, const char* name, const c
 		} else {
 			return 0;
 		}
+	} else if (SECTION("sound")) {
+		if (PROPERTY("filename")) {
+			sprintf_s(config.soundFile, sizeof(config.soundFile), value);
+		} else {
+			return 0;
+		}
 	} else {
 		return 0;
 	}

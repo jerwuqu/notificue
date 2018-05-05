@@ -1,7 +1,10 @@
-*.suo
-*.user
 *.ini
 *.ini.bak.*
+*.wav
+*.log
+
+*.suo
+*.user
 *.userosscache
 *.sln.docstates
 *.userprefs
@@ -25,7 +28,6 @@ x86/
 *.tlh
 *.tmp
 *.tmp_proj
-*.log
 *.vspscc
 *.vssscc
 .builds

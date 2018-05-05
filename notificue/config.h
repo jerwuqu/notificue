@@ -28,7 +28,8 @@ typedef struct _NotificueConfig
 	// Time
 	int32_t displayTime;
 
-	// todo: sound
+	// Sound
+	char soundFile[256];
 } NotificueConfig;
 
 NotificueConfig* config_load();
@@ -54,6 +55,8 @@ NotificueConfig* config_get();
 		"border=000000\n"\
 		"text=000000\n\n"\
 		"[time]\n"\
-		"display_time=5000\n"
+		"display_time=5000\n\n"\
+		"[sound]\n"\
+		"filename=\n"
 
 #define CONFIG_DEFAULT_LEN (sizeof(CONFIG_DEFAULT) - 1)
