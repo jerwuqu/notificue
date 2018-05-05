@@ -46,6 +46,17 @@ static SIZE calculateBoxSize(const wchar_t* title, const wchar_t* body)
 	return boxSize;
 }
 
+static void removeNotification(HWND hwnd)
+{
+	Notification* ntf = (Notification*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+	if (!ntf) return;
+
+	// todo: move other notifications on close
+	ntfls_remove(ntf);
+	SetWindowLongPtr(hwnd, GWLP_USERDATA, 0);
+	DestroyWindow(hwnd);
+}
+
 static LRESULT CALLBACK wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	Notification* ntf = (Notification*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
@@ -82,14 +93,16 @@ static LRESULT CALLBACK wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
 			EndPaint(hwnd, &ps);
 			return FALSE;
 		} else if (msg == WM_LBUTTONDOWN) {
-			// todo: move other notifications on close
-			ntfls_remove(ntf);
-			SetWindowLongPtr(hwnd, GWLP_USERDATA, 0);
-			DestroyWindow(hwnd);
+			removeNotification(hwnd);
 		}
 	}
 
 	return DefWindowProc(hwnd, msg, wParam, lParam);
+}
+
+static VOID CALLBACK dismissTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
+{
+	removeNotification(hwnd);
 }
 
 int ntfshow_init()
@@ -209,4 +222,7 @@ void ntfshow_display(wchar_t* title, wchar_t* body)
 		boxY = screenHeight + config->screenY - ntf->boxYOffset - ntf->index * config->notificationMargin - boxSize.cy;
 	}
 	SetWindowPos(hwnd, NULL, boxX, boxY, 0, 0, SWP_FRAMECHANGED | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER);
+
+	// Set auto-dismiss timer
+	if (config->displayTime > 0) SetTimer(hwnd, 0, config->displayTime, dismissTimerProc);
 }

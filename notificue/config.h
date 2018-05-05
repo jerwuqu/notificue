@@ -17,18 +17,16 @@ typedef struct _NotificueConfig
 	// Size
 	int32_t minWidth, maxWidth;
 
-	// Font
+	// Text
 	char fontName[256];
 	uint8_t fontSize;
-
-	// Margin
 	int32_t textBoxMargin, titleBodyMargin;
 
 	// Color
 	uint32_t backgroundColor, borderColor, textColor;
 
-	// Display
-	int32_t displayTime; // todo
+	// Time
+	int32_t displayTime;
 
 	// todo: sound
 } NotificueConfig;
@@ -56,6 +54,6 @@ NotificueConfig* config_get();
 		"border=000000\n"\
 		"text=000000\n\n"\
 		"[time]\n"\
-		"display_time=0\n"
+		"display_time=5000\n"
 
 #define CONFIG_DEFAULT_LEN (sizeof(CONFIG_DEFAULT) - 1)
