@@ -39,7 +39,7 @@ NotificueConfig* config_get();
 		"[notificue]\n"\
 		"version="CONFIG_VERSION"\n\n"\
 		"[location]\n"\
-		"screen_x=25\n"\
+		"screen_x=-25\n"\
 		"screen_y=25\n"\
 		"notification_margin=5\n\n"\
 		"[size]\n"\
@@ -47,11 +47,11 @@ NotificueConfig* config_get();
 		"max_width=400\n\n"\
 		"[text]\n"\
 		"font_name=Arial\n"\
-		"font_size=-14\n"\
+		"font_size=18\n"\
 		"box_margin=15\n"\
-		"title_body_margin=5\n\n"\
+		"title_body_margin=0\n\n"\
 		"[color]\n"\
-		"background=00AAFF\n"\
+		"background=FFAA00\n"\
 		"border=000000\n"\
 		"text=000000\n\n"\
 		"[time]\n"\

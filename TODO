@@ -1,0 +1,5 @@
+Make sure DLL is still working (notification pings?)
+- Notification on startup
+- Notification pings every 5 or so seconds
+
+Hide console window (WinMain instead of main)
