@@ -39,7 +39,7 @@ static SIZE calculateBoxSize(const wchar_t* title, const wchar_t* body)
 	rect.bottom = 1000;
 	SelectObject(dummyDC, bodyFont);
 	boxHeight += DrawTextW(dummyDC, body, -1, &rect, NTF_DRAW_TEXT_FLAGS);
-	
+
 	// Set properties
 	SIZE boxSize;
 	boxSize.cx = textWidth + config->textBoxMargin * 2;

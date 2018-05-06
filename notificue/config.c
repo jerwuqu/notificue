@@ -40,8 +40,8 @@ static int backupConfig()
 
 static int iniHandler(void* user, const char* section, const char* name, const char* value)
 {
-	#define SECTION(s) strcmp(section, s) == 0
-	#define PROPERTY(n) strcmp(name, n) == 0
+#define SECTION(s) strcmp(section, s) == 0
+#define PROPERTY(n) strcmp(name, n) == 0
 
 	if (SECTION("notificue")) {
 		if (PROPERTY("version")) {

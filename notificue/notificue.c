@@ -18,11 +18,11 @@ int main(int argc, char** argv)
 		TranslateMessage(&message);
 		DispatchMessage(&message);
 	}
-	
+
 	// Quit
 	shellhook_remove();
 	mainwnd_destroy();
 	ntfshow_quit();
-	
+
 	return 0;
 }
