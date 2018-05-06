@@ -164,6 +164,12 @@ void ntfshow_quit()
 
 Notification* ntfshow_create(wchar_t* title, wchar_t* body)
 {
+	// Don't show if both title and body are empty
+	if (lstrlenW(title) == 0 && lstrlenW(body) == 0) {
+		log_text("Empty notification, not displaying...\n");
+		return 0;
+	}
+
 	// Calculate size
 	SIZE boxSize = calculateBoxSize(title, body);
 
