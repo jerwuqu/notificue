@@ -2,6 +2,7 @@
 #include "config.h"
 #pragma comment(lib, "Winmm.lib")
 
+#define NOTIFICATION_CLASS "notificue_ntf"
 #define NTF_DRAW_TEXT_FLAGS (DT_NOCLIP | DT_NOPREFIX | DT_WORDBREAK | DT_EDITCONTROL)
 
 static HCURSOR cursor = NULL;
@@ -138,7 +139,7 @@ int ntfshow_init()
 	memset(&wc, 0, sizeof(WNDCLASSEX));
 	wc.cbSize = sizeof(WNDCLASSEX);
 	wc.lpfnWndProc = wndProc;
-	wc.lpszClassName = "notificue_ntf";
+	wc.lpszClassName = NOTIFICATION_CLASS;
 	wc.hCursor = cursor;
 	if (!RegisterClassEx(&wc)) {
 		log_text("Failed to register ntf class!\n");
@@ -175,7 +176,7 @@ Notification* ntfshow_create(wchar_t* title, wchar_t* body)
 	}
 
 	// Create notification window
-	HWND hwnd = CreateWindowEx(WS_EX_TOPMOST, "notificue_ntf", "", CS_VREDRAW | CS_HREDRAW, 0, 0, ntf->boxSize.cx, ntf->boxSize.cy, 0, 0, 0, 0);
+	HWND hwnd = CreateWindowEx(WS_EX_TOPMOST | WS_EX_TOOLWINDOW, NOTIFICATION_CLASS, "", 0, 0, 0, ntf->boxSize.cx, ntf->boxSize.cy, 0, 0, 0, 0);
 	if (!hwnd) {
 		log_text("Failed to create window!\n");
 		log_win32_error();
@@ -186,13 +187,10 @@ Notification* ntfshow_create(wchar_t* title, wchar_t* body)
 	ntf->hwnd = hwnd;
 	SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)ntf);
 
-	// Remove styling (https://stackoverflow.com/questions/2398746/removing-window-border)
+	// Remove default window styling
 	LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
-	lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
+	lStyle &= ~WS_OVERLAPPEDWINDOW;
 	SetWindowLong(hwnd, GWL_STYLE, lStyle);
-	LONG lExStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
-	lExStyle &= ~(WS_EX_DLGMODALFRAME | WS_EX_CLIENTEDGE | WS_EX_STATICEDGE);
-	SetWindowLong(hwnd, GWL_EXSTYLE, lExStyle);
 
 	// Show window
 	ShowWindow(hwnd, SW_SHOW);
