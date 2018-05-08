@@ -2,6 +2,7 @@
 *.ini.bak.*
 *.wav
 *.log
+*.tmp
 
 *.suo
 *.user
@@ -26,7 +27,6 @@ x86/
 *.tlb
 *.tli
 *.tlh
-*.tmp
 *.tmp_proj
 *.vspscc
 *.vssscc

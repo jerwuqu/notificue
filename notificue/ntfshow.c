@@ -162,8 +162,15 @@ void ntfshow_quit()
 	dummyDC = NULL;
 }
 
-Notification* ntfshow_create(wchar_t* title, wchar_t* body)
+Notification* ntfshow_create(wchar_t* title, wchar_t* body, wchar_t* process)
 {
+	// Log
+	if (process) {
+		log_text("Notification! Title: %ls, Body: %ls, Process: %ls\n", title, body, process);
+	} else {
+		log_text("Notification! Title: %ls, Body: %ls\n", title, body);
+	}
+
 	// Don't show if both title and body are empty
 	if (lstrlenW(title) == 0 && lstrlenW(body) == 0) {
 		log_text("Empty notification, not displaying...\n");

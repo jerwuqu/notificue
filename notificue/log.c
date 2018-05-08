@@ -1,6 +1,7 @@
 // Notificue Logging
 
 #include "log.h"
+#include <time.h>
 
 void log_text(const char* format, ...)
 {
@@ -11,12 +12,31 @@ void log_text(const char* format, ...)
 
 #ifdef LOG_TO_FILE
 	FILE* file;
-	fopen_s(&file, LOG_PATH, "a+");
+	if (fopen_s(&file, LOG_PATH, "a+")) {
+		printf("Error opening log file!\n");
+		va_end(vargs);
+		return;
+	}
 	vfprintf(file, format, vargs);
 	fclose(file);
 #endif
 
 	va_end(vargs);
+}
+
+void log_dump(char* data, size_t size)
+{
+	char fileName[MAX_PATH];
+	GetTempFileNameA(LOG_DUMP_PATH, "dmp", 0, fileName);
+
+	FILE* file;
+	if (fopen_s(&file, fileName, "w")) {
+		log_text("Error opening dump file!\n");
+		log_win32_error();
+		return;
+	}
+	fwrite(data, size, 1, file);
+	fclose(file);
 }
 
 void log_win32_error()

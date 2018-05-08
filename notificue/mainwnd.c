@@ -5,6 +5,27 @@
 static HWND mainWnd = NULL;
 static time_t lastPing;
 
+static int processPathFromWnd(HWND hwnd, WCHAR* processNameOut, DWORD processNameLength)
+{
+	DWORD processId;
+	GetWindowThreadProcessId(hwnd, &processId);
+	HANDLE processHandle = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, processId);
+	if (!processHandle) {
+		log_text("Failed to open process!\n");
+		log_win32_error();
+		return 0;
+	}
+
+	if (!QueryFullProcessImageNameW(processHandle, 0, processNameOut, &processNameLength)) {
+		log_text("Failed to get process name!\n");
+		log_win32_error();
+		return 0;
+	}
+	CloseHandle(processHandle);
+
+	return 1;
+}
+
 static LRESULT CALLBACK wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	if (msg == WM_COPYDATA) {
@@ -20,6 +41,11 @@ static LRESULT CALLBACK wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
 			sni.dwMessage = *((DWORD*)(buff + 0x4));
 			sni.nid_cbSize = *((DWORD*)(buff + 0x8));
 
+			// Get data with reliable offsets
+			sni.nid_hWnd = *((HWND*)(buff + 0xC));
+			sni.nid_hIcon = *((HICON*)(buff + 0x1C));
+			sni.nid_szTip = (WCHAR*)(buff + 0x20);
+
 			// Ignore message if icon is being deleted
 			if (sni.dwMessage == NIM_DELETE) goto defwndproc;
 
@@ -28,16 +54,28 @@ static LRESULT CALLBACK wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
 				sni.nid_uFlags = *((DWORD*)(buff + 0x14));
 				sni.nid_szInfo = (WCHAR*)(buff + 0x128);
 				sni.nid_szInfoTitle = (WCHAR*)(buff + 0x32C);
+				sni.ext_exePath = (WCHAR*)(buff + 0x3C4);
 			} else {
-				log_text("Incorrect NID cbSize! (%d)\n", sni.nid_cbSize);
+				log_text("Incorrect NID cbSize! (%d) CDS dumped!\n", sni.nid_cbSize);
 				log_shell32_version();
+				log_dump(buff, bufflen);
 				goto defwndproc;
 			}
 
 			// Check if this is a notification
 			if (sni.nid_uFlags & NIF_INFO) {
-				log_text("Notification! Title: %ls, Body: %ls\n", sni.nid_szInfoTitle, sni.nid_szInfo);
-				ntfshow_create(sni.nid_szInfoTitle, sni.nid_szInfo);
+				if (sni.nid_hWnd) {
+					WCHAR processName[MAX_PATH];
+					if (processPathFromWnd(sni.nid_hWnd, processName, sizeof(processName))) {
+						ntfshow_create(sni.nid_szInfoTitle, sni.nid_szInfo, processName);
+					} else {
+						ntfshow_create(sni.nid_szInfoTitle, sni.nid_szInfo, NULL);
+					}
+				} else if (sni.ext_exePath && sni.ext_exePath[0]) {
+					ntfshow_create(sni.nid_szInfoTitle, sni.nid_szInfo, sni.ext_exePath);
+				} else {
+					ntfshow_create(sni.nid_szInfoTitle, sni.nid_szInfo, NULL);
+				}
 			}
 		}
 	} else if (msg == NOTIFICUE_PING_MESSAGE) {
