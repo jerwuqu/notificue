@@ -3,7 +3,7 @@
 #include "shellhook.h"
 
 static HWND mainWnd = NULL;
-static time_t lastPing;
+static time_t lastPong;
 
 static int processPathFromWnd(HWND hwnd, WCHAR* processNameOut, DWORD processNameLength)
 {
@@ -78,8 +78,8 @@ static LRESULT CALLBACK wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
 				}
 			}
 		}
-	} else if (msg == NOTIFICUE_PING_MESSAGE) {
-		lastPing = time(0);
+	} else if (msg == NOTIFICUE_PONG_MESSAGE) {
+		lastPong = time(0);
 	}
 
 defwndproc:
@@ -88,12 +88,20 @@ defwndproc:
 
 static VOID CALLBACK aliveTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 {
-	if (time(0) - lastPing >= NOTIFICUE_HOOK_DEAD_TIMEOUT) {
+	// Get window
+	HWND wnd = shellhook_getShellWnd();
+	if (!wnd) return;
+
+	// Check when we got last pong
+	if (time(0) - lastPong >= NOTIFICUE_HOOK_DEAD_TIMEOUT) {
 		log_text("Hook dead! Reinjecting...\n");
 		shellhook_remove();
 		if (shellhook_inject()) return;
 		log_text("OK!\n");
 	}
+
+	// Send ping
+	SendMessage(wnd, NOTIFICUE_PING_MESSAGE, 0, 0);
 }
 
 int mainwnd_create()
@@ -127,7 +135,7 @@ int mainwnd_create()
 	}
 
 	// Create repeating timer
-	lastPing = time(0);
+	lastPong = time(0);
 	SetTimer(mainWnd, 0, NOTIFICUE_PING_INTERVAL * 1000, aliveTimerProc);
 
 	return 0;

@@ -1,7 +1,18 @@
 #include "shellhook.h"
+#include "log.h"
 
 static HMODULE dll = NULL;
 static HHOOK hook = NULL;
+
+HWND shellhook_getShellWnd()
+{
+	HWND wnd = FindWindowA("Shell_TrayWnd", "");
+	if (!wnd) {
+		log_text("Shell_TrayWnd window not found!\n");
+		return 0;
+	}
+	return wnd;
+}
 
 int shellhook_inject()
 {
@@ -19,11 +30,8 @@ int shellhook_inject()
 		return 1;
 	}
 
-	HWND wnd = FindWindowA("Shell_TrayWnd", "");
-	if (!wnd) {
-		log_text("Shell_TrayWnd window not found!\n");
-		return 1;
-	}
+	HWND wnd = shellhook_getShellWnd();
+	if (!wnd) return 1;
 
 	DWORD tid = GetWindowThreadProcessId(wnd, 0);
 	if (!tid) {
@@ -46,5 +54,6 @@ void shellhook_remove()
 {
 	FreeLibrary(dll);
 	UnhookWindowsHookEx(hook);
-	dll = hook = NULL;
+	dll = NULL;
+	hook = NULL;
 }

@@ -4,13 +4,13 @@
 #include "../notificue/shared.h"
 
 static HWND notificueWnd = 0;
-static time_t lastPing = 0;
 
 extern __declspec(dllexport) LRESULT WINAPI wndProcHook(int nCode, WPARAM wParam, LPARAM lParam)
 {
 	if (nCode == HC_ACTION && notificueWnd) {
 		CWPSTRUCT *data = (CWPSTRUCT*)lParam;
 		if (data->message == WM_COPYDATA) {
+			// Get CDS
 			COPYDATASTRUCT* cds = (COPYDATASTRUCT*)data->lParam;
 			char* buff = (char*)cds->lpData;
 			DWORD bufflen = cds->cbData;
@@ -20,13 +20,9 @@ extern __declspec(dllexport) LRESULT WINAPI wndProcHook(int nCode, WPARAM wParam
 				// Forward to notificue
 				SendMessage(notificueWnd, data->message, data->wParam, data->lParam);
 			}
-		}
-
-		// Ping notificue to signal we're still alive
-		time_t currentTime = time(0);
-		if (currentTime - lastPing >= NOTIFICUE_PING_INTERVAL) {
-			PostMessage(notificueWnd, WM_USER, 0, 0);
-			lastPing = currentTime;
+		} else if (data->message == NOTIFICUE_PING_MESSAGE) {
+			// Send PONG
+			PostMessage(notificueWnd, NOTIFICUE_PONG_MESSAGE, 0, 0);
 		}
 	}
 
