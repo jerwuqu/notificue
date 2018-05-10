@@ -2,6 +2,9 @@
 #include "ntfshow.h"
 #include "shellhook.h"
 
+#define ONE_SECOND 1
+#define HOOK_DEAD_TIME (ONE_SECOND * 3)
+
 static HWND mainWnd = NULL;
 static time_t lastPong;
 
@@ -57,7 +60,6 @@ static LRESULT CALLBACK wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
 				sni.ext_exePath = (WCHAR*)(buff + 0x3C4);
 			} else {
 				log_text("Incorrect NID cbSize! (%d) CDS dumped!\n", sni.nid_cbSize);
-				log_shell32_version();
 				log_dump(buff, bufflen);
 				goto defwndproc;
 			}
@@ -88,12 +90,15 @@ defwndproc:
 
 static VOID CALLBACK aliveTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 {
+	// Flush log
+	log_flush();
+
 	// Get window
 	HWND wnd = shellhook_getShellWnd();
 	if (!wnd) return;
 
 	// Check when we got last pong
-	if (time(0) - lastPong >= NOTIFICUE_HOOK_DEAD_TIMEOUT) {
+	if (time(0) - lastPong >= HOOK_DEAD_TIME) {
 		log_text("Hook dead! Reinjecting...\n");
 		shellhook_remove();
 		if (shellhook_inject()) return;
@@ -136,7 +141,7 @@ int mainwnd_create()
 
 	// Create repeating timer
 	lastPong = time(0);
-	SetTimer(mainWnd, 0, NOTIFICUE_PING_INTERVAL * 1000, aliveTimerProc);
+	SetTimer(mainWnd, 0, ONE_SECOND * 1000, aliveTimerProc);
 
 	return 0;
 }

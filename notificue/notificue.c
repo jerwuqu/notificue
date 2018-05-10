@@ -23,6 +23,7 @@ int main(int argc, char** argv)
 	shellhook_remove();
 	mainwnd_destroy();
 	ntfshow_quit();
+	log_flush();
 
 	return 0;
 }
