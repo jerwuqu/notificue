@@ -23,5 +23,6 @@ struct SNIDATA
 	WCHAR* ext_exePath;
 };
 
+int mainwnd_isRunning();
 int mainwnd_create();
 void mainwnd_destroy();

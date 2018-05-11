@@ -109,6 +109,11 @@ static VOID CALLBACK aliveTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWOR
 	SendMessage(wnd, NOTIFICUE_PING_MESSAGE, 0, 0);
 }
 
+int mainwnd_isRunning()
+{
+	return FindWindowA(NOTIFICUE_HOOK_WND_CLASSNAME, "") != NULL;
+}
+
 int mainwnd_create()
 {
 	// Register main class

@@ -5,6 +5,12 @@
 
 int main(int argc, char** argv)
 {
+	// Check if already running
+	if (mainwnd_isRunning()) {
+		MessageBox(0, "notificue is already running!\n", "notificue", MB_OK | MB_ICONERROR);
+		return 1;
+	}
+
 	// Init
 	if (ntfshow_init()) return 1;
 	if (mainwnd_create()) return 1;
