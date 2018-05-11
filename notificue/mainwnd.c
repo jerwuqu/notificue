@@ -1,12 +1,15 @@
 #include "mainwnd.h"
 #include "ntfshow.h"
 #include "shellhook.h"
+#include "resource.h"
+#include "notificue.h"
 
 #define ONE_SECOND 1
 #define HOOK_DEAD_TIME (ONE_SECOND * 3)
 
 static HWND mainWnd = NULL;
 static time_t lastPong;
+static NOTIFYICONDATAA icon = { 0 };
 
 static int processPathFromWnd(HWND hwnd, WCHAR* processNameOut, DWORD processNameLength)
 {
@@ -82,6 +85,12 @@ static LRESULT CALLBACK wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
 		}
 	} else if (msg == NOTIFICUE_PONG_MESSAGE) {
 		lastPong = time(0);
+	} else if (msg == NOTIFICUE_TRAY_MESSAGE) {
+		if (lParam == WM_LBUTTONUP) {
+			ShellExecute(0, 0, LOG_PATH, 0, 0, SW_SHOW);
+		} else if (lParam == WM_RBUTTONUP) {
+			notificue_exit(0);
+		}
 	}
 
 defwndproc:
@@ -114,7 +123,7 @@ int mainwnd_isRunning()
 	return FindWindowA(NOTIFICUE_HOOK_WND_CLASSNAME, "") != NULL;
 }
 
-int mainwnd_create()
+int mainwnd_create(HINSTANCE hInstance)
 {
 	// Register main class
 	WNDCLASSEX wc;
@@ -144,6 +153,20 @@ int mainwnd_create()
 		return 1;
 	}
 
+	// Create tray icon
+	icon.cbSize = sizeof(icon);
+	icon.hWnd = mainWnd;
+	icon.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
+	icon.uCallbackMessage = NOTIFICUE_TRAY_MESSAGE;
+	strcpy_s(icon.szTip, 64, "notificue");
+	icon.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(NOTIFICUE_APP_ICON));
+	if (!Shell_NotifyIconA(NIM_ADD, &icon)) {
+		log_text("Failed to create trayicon!\n");
+		DestroyWindow(mainWnd);
+		mainWnd = NULL;
+		return 1;
+	}
+
 	// Create repeating timer
 	lastPong = time(0);
 	SetTimer(mainWnd, 0, ONE_SECOND * 1000, aliveTimerProc);
@@ -153,6 +176,9 @@ int mainwnd_create()
 
 void mainwnd_destroy()
 {
+	Shell_NotifyIconA(NIM_DELETE, &icon);
+	DestroyIcon(icon.hIcon);
+	icon.hIcon = NULL;
 	DestroyWindow(mainWnd);
 	mainWnd = NULL;
 }

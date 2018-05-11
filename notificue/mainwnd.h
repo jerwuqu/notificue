@@ -24,5 +24,5 @@ struct SNIDATA
 };
 
 int mainwnd_isRunning();
-int mainwnd_create();
+int mainwnd_create(HINSTANCE hInstance);
 void mainwnd_destroy();

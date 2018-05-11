@@ -1,9 +1,19 @@
+#include "notificue.h"
 #include "ntfls.h"
 #include "ntfshow.h"
 #include "shellhook.h"
 #include "mainwnd.h"
 
-int main(int argc, char** argv)
+void notificue_exit(int errorCode)
+{
+	shellhook_remove();
+	mainwnd_destroy();
+	ntfshow_quit();
+	log_flush();
+	exit(errorCode);
+}
+
+int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,  LPSTR lpCmdLine, int nCmdShow)
 {
 	// Check if already running
 	if (mainwnd_isRunning()) {
@@ -12,9 +22,20 @@ int main(int argc, char** argv)
 	}
 
 	// Init
-	if (ntfshow_init()) return 1;
-	if (mainwnd_create()) return 1;
-	if (shellhook_inject()) return 1;
+	if (ntfshow_init()) {
+		log_flush();
+		return 1;
+	}
+
+	if (mainwnd_create(hInstance)) {
+		log_flush();
+		return 1;
+	}
+
+	if (shellhook_inject()) {
+		log_flush();
+		return 1;
+	}
 
 	log_text("OK!\n");
 
@@ -26,10 +47,7 @@ int main(int argc, char** argv)
 	}
 
 	// Quit
-	shellhook_remove();
-	mainwnd_destroy();
-	ntfshow_quit();
-	log_flush();
+	notificue_exit(0);
 
 	return 0;
 }
