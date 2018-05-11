@@ -3,7 +3,7 @@
 #include <stdint.h>
 
 #define CONFIG_PATH "notificue.ini"
-#define CONFIG_VERSION "DEV"
+#define CONFIG_VERSION "0.01"
 
 typedef struct _NotificueConfig
 {
@@ -39,7 +39,7 @@ NotificueConfig* config_get();
 		"[notificue]\n"\
 		"version="CONFIG_VERSION"\n\n"\
 		"[location]\n"\
-		"screen_x=-25\n"\
+		"screen_x=25\n"\
 		"screen_y=25\n"\
 		"notification_margin=5\n\n"\
 		"[size]\n"\
@@ -47,11 +47,11 @@ NotificueConfig* config_get();
 		"max_width=400\n\n"\
 		"[text]\n"\
 		"font_name=Arial\n"\
-		"font_size=18\n"\
+		"font_size=16\n"\
 		"box_margin=15\n"\
-		"title_body_margin=0\n\n"\
+		"title_body_margin=3\n\n"\
 		"[color]\n"\
-		"background=FFAA00\n"\
+		"background=FFFFFF\n"\
 		"border=000000\n"\
 		"text=000000\n\n"\
 		"[time]\n"\
