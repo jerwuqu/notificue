@@ -1,1 +1,0 @@
-#define NOTIFICUE_APP_ICON 1
