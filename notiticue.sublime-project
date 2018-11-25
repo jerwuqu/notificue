@@ -1,0 +1,25 @@
+{
+    "folders": [
+        {
+            "path": ".",
+            "folder_exclude_patterns": ["bin", "obj"]
+        }
+    ],
+    "settings": {
+        "ecc_verbose": true,
+        "ecc_common_flags" : [
+            "-I${project_path}/main",
+            "-I${project_path}/dll"
+        ]
+    },
+    "build_systems": [
+        {
+            "name": "Build",
+            "shell_cmd": "cd $project_path && vcvars64.bat build.bat"
+        },
+        {
+            "name": "Clean",
+            "shell_cmd": "cd $project_path && clean.bat"
+        }
+    ]
+}
