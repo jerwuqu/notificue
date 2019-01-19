@@ -8,25 +8,26 @@
 @setlocal
 @set BT_CL=cl /nologo /c /O2
 @set BT_LINK=link /NOLOGO
-@set LIB_TOML=ext\tomlc99\toml.c
+@set IN_TOML=ext\tomlc99
+@set IN_LOGC=ext\log.c\src
 
 @rem Output dirs
 @if not exist bin mkdir bin
 @if not exist obj\main mkdir obj\main
 @if not exist obj\dll mkdir obj\dll
 
-@rem Build exts
-%BT_CL% /Foobj\main\ %LIB_TOML%
+@rem Compile externals for notificue
+%BT_CL% /Foobj\main\ %IN_TOML%\toml.c %IN_LOGC%\log.c
 @if errorlevel 1 goto :BUILDERR
 
-@rem Build notificue
-%BT_CL% /Wall /Foobj\main\ main\*.c
+@rem Compile and link notificue
+%BT_CL% /W3 /I%IN_TOML% /I%IN_LOGC% /Foobj\main\ main\*.c
 @if errorlevel 1 goto :BUILDERR
 %BT_LINK% /OUT:bin\notificue.exe user32.lib gdi32.lib obj\main\*.obj
 @if errorlevel 1 goto :BUILDERR
 
-@rem Build notificue-dll
-%BT_CL% /Wall /Foobj\dll\ dll\*.c
+@rem Compile and link notificue-dll
+%BT_CL% /W3 /Foobj\dll\ dll\*.c
 @if errorlevel 1 goto :BUILDERR
 %BT_LINK% /DLL /IMPLIB:%TEMP%\dll.lib /OUT:bin\notificue.dll user32.lib obj\dll\*.obj
 @if errorlevel 1 goto :BUILDERR

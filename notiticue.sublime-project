@@ -1,25 +1,36 @@
 {
-    "folders": [
-        {
-            "path": ".",
-            "folder_exclude_patterns": ["bin", "obj"]
-        }
-    ],
-    "settings": {
-        "ecc_verbose": true,
-        "ecc_common_flags" : [
-            "-I${project_path}/main",
-            "-I${project_path}/dll"
-        ]
-    },
-    "build_systems": [
-        {
-            "name": "Build",
-            "shell_cmd": "cd $project_path && vcvars64.bat build.bat"
-        },
-        {
-            "name": "Clean",
-            "shell_cmd": "cd $project_path && clean.bat"
-        }
-    ]
+	"build_systems":
+	[
+		{
+			"name": "Build",
+			"shell_cmd": "cd $project_path && vcvars64.bat build.bat"
+		},
+		{
+			"name": "Clean",
+			"shell_cmd": "cd $project_path && clean.bat"
+		},
+		{
+			"file_regex": "^[ ]*File \"(...*?)\", line ([0-9]*)",
+			"name": "Anaconda Python Builder",
+			"selector": "source.python",
+			"shell_cmd": "\"python\" -u \"$file\""
+		}
+	],
+	"folders":
+	[
+		{
+			"path": "."
+		}
+	],
+	"settings":
+	{
+		"ecc_common_flags":
+		[
+			"-I${project_path}/main",
+			"-I${project_path}/dll",
+			"-I${project_path}/ext/tomlc99",
+			"-I${project_path}/ext/log.c/src"
+		],
+		"ecc_verbose": true
+	}
 }

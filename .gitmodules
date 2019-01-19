@@ -1,3 +1,6 @@
 [submodule "ext/tomlc99"]
 	path = ext/tomlc99
 	url = https://github.com/cktan/tomlc99
+[submodule "ext/log.c"]
+	path = ext/log.c
+	url = https://github.com/rxi/log.c
