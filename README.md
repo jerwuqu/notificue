@@ -1,3 +1,10 @@
+
+- - -
+
+### NOTE: This project is currently being rewritten from scratch on the `rewrite` branch
+
+- - -
+
 # notificue
 A Notification System replacement for Windows 10 (64-bit only).
 
